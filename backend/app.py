@@ -6,7 +6,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Import database connection functions
 from database.mongodb import connect_to_mongodb, close_mongodb_connection
+
+# Import API routers
 from api.routes.auth import router as auth_router
 from api.routes.users import router as users_router
 from api.routes.reports import router as reports_router

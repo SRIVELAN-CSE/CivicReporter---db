@@ -1,9 +1,12 @@
 services:
   - type: web
     name: civicreporter-db
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    runtime: python3
+    rootDir: backend
+    buildCommand: |
+      pip install --upgrade pip
+      pip install --no-cache-dir -r requirements-render.txt
+    startCommand: gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
     healthCheckPath: /healthz
     envVars:
       - key: DATABASE_NAME
@@ -18,3 +21,7 @@ services:
         value: 0.0.0.0
       - key: RELOAD
         value: false
+      - key: MAX_FILE_SIZE
+        value: 10485760
+      - key: UPLOAD_DIRECTORY
+        value: ./uploads

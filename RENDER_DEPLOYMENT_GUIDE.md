@@ -28,11 +28,16 @@ Root Directory: backend
 
 #### **Step 3: Build & Deploy Commands**
 ```bash
-# Build Command
-pip install -r requirements.txt
+# Build Command (UPDATED - Use render-specific requirements)
+pip install --upgrade pip && pip install --no-cache-dir -r requirements-render.txt
 
 # Start Command  
-gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+```
+
+**Alternative Build Command (if cryptography issues persist):**
+```bash
+pip install --upgrade pip && pip install --no-binary cryptography -r requirements.txt
 ```
 
 #### **Step 4: Environment Variables**
