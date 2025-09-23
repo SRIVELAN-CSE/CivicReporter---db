@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Storage Viewer - Civic Welfare App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .data-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .data-title {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+        .data-item {
+            margin: 5px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 3px;
+            border-left: 4px solid #3498db;
+        }
+        .no-data {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .json-data {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Civic Welfare App - Local Storage Data</h1>
+            <p>This page shows all data stored locally in your browser</p>
+        </div>
+
+        <div class="data-section">
+            <div class="data-title">📊 Local Storage Contents:</div>
+            <div id="localStorageData"></div>
+        </div>
+
+        <div class="data-section">
+            <div class="data-title">🍪 Session Storage Contents:</div>
+            <div id="sessionStorageData"></div>
+        </div>
+
+        <div class="data-section">
+            <div class="data-title">🔧 Actions:</div>
+            <button onclick="refreshData()">🔄 Refresh Data</button>
+            <button onclick="exportData()">📁 Export All Data</button>
+            <button onclick="clearAllData()">🗑️ Clear All Data</button>
+        </div>
+
+        <div class="data-section">
+            <div class="data-title">📝 Raw Data (JSON):</div>
+            <div id="rawData" class="json-data"></div>
+        </div>
+    </div>
+
+    <script>
+        function displayStorageData() {
+            // Local Storage
+            const localDiv = document.getElementById('localStorageData');
+            const sessionDiv = document.getElementById('sessionStorageData');
+            const rawDiv = document.getElementById('rawData');
+
+            const allData = {
+                localStorage: {},
+                sessionStorage: {}
+            };
+
+            // Display Local Storage
+            if (localStorage.length === 0) {
+                localDiv.innerHTML = '<div class="no-data">No data found in Local Storage</div>';
+            } else {
+                let localHTML = '';
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    allData.localStorage[key] = value;
+                    
+                    localHTML += `<div class="data-item">
+                        <strong>${key}:</strong> ${value.length > 100 ? value.substring(0, 100) + '...' : value}
+                    </div>`;
+                }
+                localDiv.innerHTML = localHTML;
+            }
+
+            // Display Session Storage
+            if (sessionStorage.length === 0) {
+                sessionDiv.innerHTML = '<div class="no-data">No data found in Session Storage</div>';
+            } else {
+                let sessionHTML = '';
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    const value = sessionStorage.getItem(key);
+                    allData.sessionStorage[key] = value;
+                    
+                    sessionHTML += `<div class="data-item">
+                        <strong>${key}:</strong> ${value.length > 100 ? value.substring(0, 100) + '...' : value}
+                    </div>`;
+                }
+                sessionDiv.innerHTML = sessionHTML;
+            }
+
+            // Display raw JSON
+            rawDiv.textContent = JSON.stringify(allData, null, 2);
+        }
+
+        function refreshData() {
+            displayStorageData();
+            alert('Data refreshed!');
+        }
+
+        function exportData() {
+            const allData = {
+                localStorage: {},
+                sessionStorage: {},
+                timestamp: new Date().toISOString()
+            };
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                allData.localStorage[key] = localStorage.getItem(key);
+            }
+
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                allData.sessionStorage[key] = sessionStorage.getItem(key);
+            }
+
+            const blob = new Blob([JSON.stringify(allData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'civic_welfare_local_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all local data? This cannot be undone.')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                displayStorageData();
+                alert('All local data cleared!');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', displayStorageData);
+    </script>
+</body>
+</html>
