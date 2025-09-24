@@ -1,5 +1,6 @@
 """
 MongoDB Database Configuration and Connection Management
+Supports switching between local development and cloud production databases
 """
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
@@ -9,9 +10,21 @@ from typing import Optional
 
 load_dotenv()
 
-# MongoDB Configuration
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "civic_welfare")
+# Environment Configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
+
+# MongoDB Configuration - switches based on environment
+if ENVIRONMENT == "development":
+    MONGODB_URL = os.getenv("LOCAL_MONGODB_URL", "mongodb://localhost:27017")
+    DATABASE_NAME = os.getenv("LOCAL_DATABASE_NAME", "civic_welfare_local")
+    print(f"🔧 Running in DEVELOPMENT mode - Using LOCAL MongoDB")
+else:
+    MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+    DATABASE_NAME = os.getenv("DATABASE_NAME", "civic_welfare")
+    print(f"🚀 Running in PRODUCTION mode - Using CLOUD MongoDB Atlas")
+
+print(f"📊 Database: {DATABASE_NAME}")
+print(f"🔗 Connection: {MONGODB_URL.split('@')[0] + '@***' if '@' in MONGODB_URL else MONGODB_URL}")
 
 # Global database client instance
 client: Optional[AsyncIOMotorClient] = None

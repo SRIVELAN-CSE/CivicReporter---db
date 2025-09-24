@@ -60,9 +60,6 @@ dependencies:
   # URL Launcher for phone calls and WhatsApp
   url_launcher: ^6.2.5
   
-  # TensorFlow Lite for AI image analysis
-  tflite_flutter: ^0.11.0
-  
   # Additional dependencies for image processing
   image: ^4.1.7
 

@@ -9,11 +9,34 @@ load_dotenv()
 # Import database connection functions
 from database.mongodb import connect_to_mongodb, close_mongodb_connection
 
-# Import API routers
-from api.routes.auth import router as auth_router
-from api.routes.users import router as users_router
-from api.routes.reports import router as reports_router
-from api.routes.notifications import router as notifications_router
+# Import API routers with error handling
+try:
+    from api.routes.auth import router as auth_router
+    print("✅ Auth router imported successfully")
+except Exception as e:
+    print(f"❌ Failed to import auth router: {e}")
+    auth_router = None
+
+try:
+    from api.routes.users import router as users_router
+    print("✅ Users router imported successfully")
+except Exception as e:
+    print(f"❌ Failed to import users router: {e}")
+    users_router = None
+
+try:
+    from api.routes.reports import router as reports_router
+    print("✅ Reports router imported successfully")
+except Exception as e:
+    print(f"❌ Failed to import reports router: {e}")
+    reports_router = None
+
+try:
+    from api.routes.notifications import router as notifications_router
+    print("✅ Notifications router imported successfully")
+except Exception as e:
+    print(f"❌ Failed to import notifications router: {e}")
+    notifications_router = None
 
 app = FastAPI(
     title="CivicReporter API",
@@ -45,16 +68,33 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_db_client():
     await connect_to_mongodb()
+    print("✅ Database connected successfully")
+    print("🔗 API Routes registered:")
+    print("   - /api/auth/* (Authentication)")
+    print("   - /api/users/* (Users)")
+    print("   - /api/reports/* (Reports)")
+    print("   - /api/notifications/* (Notifications)")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
     await close_mongodb_connection()
 
-# Include API routers
-app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(users_router, prefix="/api/users", tags=["Users"])
-app.include_router(reports_router, prefix="/api/reports", tags=["Reports"])
-app.include_router(notifications_router, prefix="/api/notifications", tags=["Notifications"])
+# Include API routers with safety checks
+if auth_router:
+    app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+    print("✅ Auth routes registered: /api/auth/*")
+
+if users_router:
+    app.include_router(users_router, prefix="/api/users", tags=["Users"])
+    print("✅ Users routes registered: /api/users/*")
+
+if reports_router:
+    app.include_router(reports_router, prefix="/api/reports", tags=["Reports"])
+    print("✅ Reports routes registered: /api/reports/*")
+
+if notifications_router:
+    app.include_router(notifications_router, prefix="/api/notifications", tags=["Notifications"])
+    print("✅ Notifications routes registered: /api/notifications/*")
 
 @app.get("/")
 async def root():
