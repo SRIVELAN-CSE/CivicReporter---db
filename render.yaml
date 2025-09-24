@@ -3,10 +3,14 @@ services:
     name: civicreporter-db
     runtime: python3
     rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install -r requirements-ultra-minimal.txt
-    startCommand: gunicorn app_ultra_minimal:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn app:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
     healthCheckPath: /healthz
     envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: MONGODB_URL
+        value: mongodb+srv://srivelansv2006_db_user:9YxxIF6TGmNQEsNg@civic-welfare-cluster.rts6zvy.mongodb.net/?retryWrites=true&w=majority&appName=civic-welfare-cluster
       - key: DATABASE_NAME
         value: civic_welfare
       - key: SECRET_KEY
